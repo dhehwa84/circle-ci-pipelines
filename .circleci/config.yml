@@ -3,7 +3,7 @@ version: 2.1
 executors:
   php-executor:
     docker:
-        - image: cimg/php:7.4-node
+        - image: cimg/php:8.2-node
     working_directory: ~/repo
     environment:
       MYSQL_HOST: localhost
@@ -21,7 +21,7 @@ jobs:
 
   composer_install:
     docker:
-      - image: cimg/php:7.4-node
+      - image: cimg/php:8.2-node
     steps:
       - checkout
       - run:
@@ -30,7 +30,7 @@ jobs:
           
   run_tests:
     docker:
-      - image: cimg/php:7.4-node
+      - image: cimg/php:8.2-node
     steps:
       - checkout
       - run:
@@ -39,7 +39,7 @@ jobs:
 
   run_lint:
     docker:
-      - image: cimg/php:7.4-node
+      - image: cimg/php:8.2-node
     steps:
       - checkout
       - run:
@@ -48,7 +48,7 @@ jobs:
 
   run_phpstan:
     docker:
-      - image: cimg/php:7.4-node
+      - image: cimg/php:8.2-node
     steps:
       - checkout
       - run:
@@ -69,7 +69,7 @@ jobs:
 
   # sync_to_server:
   #   docker:
-  #      - image: cimg/php:7.4-node
+  #      - image: cimg/php:8.2-node
   #   steps:
   #     - run:
   #         name: Sync Code to Server
