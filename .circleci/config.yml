@@ -4,9 +4,10 @@ executors:
   php-executor:
     docker:
       - image: cimg/php:8.2-node
+      - image: circleci/mysql:5.7
     working_directory: ~/repo
     environment:
-      MYSQL_HOST: 127.0.0.1  # Use explicit IP for MySQL
+      MYSQL_HOST: 127.0.0.1
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: symfony_test
@@ -31,9 +32,9 @@ jobs:
   run_tests:
     docker:
       - image: cimg/php:8.2-node
-      - image: circleci/mysql:5.7  # Add MySQL if needed
+      - image: circleci/mysql:5.7  # Add MySQL container
     environment:
-      MYSQL_ROOT_PASSWORD: root  # Needed for MySQL container
+      MYSQL_ROOT_PASSWORD: root
     steps:
       - checkout
       - run:
@@ -47,7 +48,8 @@ jobs:
             echo "MySQL did not start in time" && exit 1
       - run:
           name: Create Database (if necessary)
-          command: mysql -u root -proot -e 'CREATE DATABASE IF NOT EXISTS symfony_test;'
+          command: |
+            docker exec $(docker ps -q -f ancestor=circleci/mysql:5.7) mysql -u root -proot -e 'CREATE DATABASE IF NOT EXISTS symfony_test;'
       - run:
           name: Run PHPUnit Tests
           command: ./vendor/bin/phpunit --coverage-text
@@ -69,32 +71,6 @@ jobs:
       - run:
           name: Run PHPStan
           command: ./vendor/bin/phpstan analyse
-
-  # Commented out code for OWASP ZAP scan, to be added later
-  # run_zap_scan:
-  #   docker:
-  #     - image: owasp/zap2docker-stable:latest
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Start ZAP Scan
-  #         command: |
-  #           zap-cli start
-  #           zap-cli quick-scan --self-contained http://localhost
-  #           zap-cli report -o zap_report.html
-
-  # Commented out code for syncing code to the server, to be added later
-  # sync_to_server:
-  #   docker:
-  #     - image: cimg/php:8.2-node
-  #   steps:
-  #     - run:
-  #         name: Sync Code to Server
-  #         command: |
-  #           rsync -avz --delete ./ deploy@yourserver:/var/www/yourproject
-  #     - run:
-  #         name: Restart Web Server
-  #         command: ssh deploy@yourserver 'sudo systemctl restart apache2'
 
 workflows:
   test_deploy:
@@ -142,22 +118,3 @@ workflows:
                 - develop
                 - UAT
                 - master
-      # Uncomment these jobs when ready
-      # - run_zap_scan:
-      #     requires:
-      #       - run_phpstan
-      #     filters:
-      #       branches:
-      #         only:
-      #           - develop
-      #           - UAT
-      #           - master
-      # - sync_to_server:
-      #     requires:
-      #       - run_zap_scan
-      #     filters:
-      #       branches:
-      #         only:
-      #           - develop
-      #           - UAT
-      #           - master
