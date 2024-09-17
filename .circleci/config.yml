@@ -67,17 +67,17 @@ jobs:
   #           zap-cli quick-scan --self-contained http://localhost
   #           zap-cli report -o zap_report.html
 
-  sync_to_server:
-    docker:
-       - image: cimg/php:7.4-node
-    steps:
-      - run:
-          name: Sync Code to Server
-          command: |
-            rsync -avz --delete ./ deploy@yourserver:/var/www/yourproject
-      - run:
-          name: Restart Web Server
-          command: ssh deploy@yourserver 'sudo systemctl restart apache2'
+  # sync_to_server:
+  #   docker:
+  #      - image: cimg/php:7.4-node
+  #   steps:
+  #     - run:
+  #         name: Sync Code to Server
+  #         command: |
+  #           rsync -avz --delete ./ deploy@yourserver:/var/www/yourproject
+  #     - run:
+  #         name: Restart Web Server
+  #         command: ssh deploy@yourserver 'sudo systemctl restart apache2'
 
 workflows:
   test_deploy:
@@ -134,12 +134,12 @@ workflows:
       #           - develop
       #           - UAT
       #           - master
-      - sync_to_server:
-          # requires:
-            # - run_zap_scan
-          filters:
-            branches:
-              only:
-                - develop
-                - UAT
-                - master
+      # - sync_to_server:
+      #     # requires:
+      #       # - run_zap_scan
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - UAT
+      #           - master
