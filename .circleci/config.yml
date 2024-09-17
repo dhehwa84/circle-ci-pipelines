@@ -32,10 +32,10 @@ jobs:
   run_tests:
     docker:
       - image: cimg/php:8.2-node
-      - image: circleci/mysql:5.7  # Add MySQL service
+      - image: circleci/mysql:5.7
     environment:
-      MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
       MYSQL_DATABASE: symfony_test
     steps:
       - checkout
