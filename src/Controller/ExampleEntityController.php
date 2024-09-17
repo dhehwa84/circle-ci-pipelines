@@ -19,6 +19,8 @@ final class ExampleEntityController extends AbstractController
     {
         return $this->render('example_entity/index.html.twig', [
             'example_entities' => $exampleEntityRepository->findAll(),
+            'example_entitie' => $exampleEntityRepository->findAll(),
+
         ]);
     }
 
