@@ -32,9 +32,11 @@ jobs:
   run_tests:
     docker:
       - image: cimg/php:8.2-node
-      - image: circleci/mysql:5.7  # Add MySQL container
+      - image: circleci/mysql:5.7  # Add MySQL service
     environment:
+      MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: symfony_test
     steps:
       - checkout
       - run:
@@ -49,7 +51,7 @@ jobs:
       - run:
           name: Create Database (if necessary)
           command: |
-            docker exec $(docker ps -q -f ancestor=circleci/mysql:5.7) mysql -u root -proot -e 'CREATE DATABASE IF NOT EXISTS symfony_test;'
+            mysql -u root -proot -h 127.0.0.1 -e 'CREATE DATABASE IF NOT EXISTS symfony_test;'
       - run:
           name: Run PHPUnit Tests
           command: ./vendor/bin/phpunit --coverage-text
