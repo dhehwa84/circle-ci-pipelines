@@ -6,7 +6,7 @@ executors:
       - image: cimg/php:8.2-node
     working_directory: ~/repo
     environment:
-      MYSQL_HOST: localhost
+      MYSQL_HOST: 127.0.0.1  # Use explicit IP for MySQL
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: symfony_test
@@ -31,8 +31,23 @@ jobs:
   run_tests:
     docker:
       - image: cimg/php:8.2-node
+      - image: circleci/mysql:5.7  # Add MySQL if needed
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Needed for MySQL container
     steps:
       - checkout
+      - run:
+          name: Wait for MySQL to be ready
+          command: |
+            for i in `seq 1 30`; do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo "MySQL did not start in time" && exit 1
+      - run:
+          name: Create Database (if necessary)
+          command: mysql -u root -proot -e 'CREATE DATABASE IF NOT EXISTS symfony_test;'
       - run:
           name: Run PHPUnit Tests
           command: ./vendor/bin/phpunit --coverage-text
